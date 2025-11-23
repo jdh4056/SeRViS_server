@@ -7,26 +7,6 @@ SeRVe는 Spring Boot + Gradle 기반의 Java 웹 애플리케이션입니다.
 
 ---
 
-## 빠른 시작
-
-### 사전 준비
-- JDK 17 설치
-- (선택) Git, GitHub CLI(`gh`) 설치
-
-### 로컬 빌드 및 실행 (PowerShell)
-```powershell
-cd C:\Users\user\Desktop\SeRVe\SeRVe
-.\gradlew.bat clean build
-.\gradlew.bat bootRun
-```
-
-### 테스트
-```powershell
-.\gradlew.bat test
-```
-
----
-
 ## 프로젝트 구조 (주요 패키지와 역할)
 
 아래는 주요 폴더와 파일의 계층 구조를 보기 쉽게 정리한 목록입니다. DTO는 설계상 포함되어 있으며, 실제 클래스들은 추후 구현될 예정입니다.
