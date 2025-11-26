@@ -39,3 +39,13 @@ node_modules/
 
 # If you add more local config files, list them here
 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual Environment
+client-robot/.venv/
+client-robot/venv/
+client-robot/ENV/
