@@ -1,10 +1,13 @@
 package horizon.SeRVe.controller;
 
+import horizon.SeRVe.dto.repo.RepoResponse;
 import horizon.SeRVe.service.RepoService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/repositories")
@@ -22,6 +25,7 @@ public class RepoController {
         private String encryptedTeamKey;
     }
 
+    //저장소 생성
     @PostMapping
     public ResponseEntity<Long> createRepository(@RequestBody CreateRepoRequest request) {
         Long repoId = repoService.createRepository(
@@ -31,5 +35,33 @@ public class RepoController {
                 request.getEncryptedTeamKey()
         );
         return ResponseEntity.ok(repoId);
+    }
+
+    // 내 저장소 목록 조회
+    // (GET 요청이라 Body가 없으므로, 임시로 파라미터로 userId를 받습니다)
+    @GetMapping
+    public ResponseEntity<List<RepoResponse>> getRepositories(@RequestParam String userId) {
+        List<RepoResponse> responses = repoService.getMyRepos(userId);
+        return ResponseEntity.ok(responses);
+    }
+
+    // 3. 팀 키 조회
+    @GetMapping("/{repoId}/keys")
+    public ResponseEntity<String> getTeamKey(
+            @PathVariable Long repoId,
+            @RequestParam String userId) {
+
+        String encryptedTeamKey = repoService.getTeamKey(repoId, userId);
+        return ResponseEntity.ok(encryptedTeamKey);
+    }
+
+    // 4. 저장소 삭제
+    @DeleteMapping("/{repoId}")
+    public ResponseEntity<Void> deleteRepository(
+            @PathVariable Long repoId,
+            @RequestParam String userId) {
+
+        repoService.deleteRepo(repoId, userId);
+        return ResponseEntity.ok().build();
     }
 }
