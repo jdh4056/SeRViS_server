@@ -1,10 +1,11 @@
-package horizon.SeRVe.service;
+package horizon.SeRVe.document;
 
 import horizon.SeRVe.dto.document.DocumentResponse;
 import horizon.SeRVe.dto.document.EncryptedDataResponse;
 import horizon.SeRVe.dto.document.UploadDocumentRequest;
 import horizon.SeRVe.entity.*;
 import horizon.SeRVe.repository.*;
+import horizon.SeRVe.service.DocumentService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
