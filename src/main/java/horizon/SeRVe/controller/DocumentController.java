@@ -35,7 +35,7 @@ public class DocumentController {
 
         // 2. DTO에 포장 (암호문 그대로)
         EncryptedPayloadDto response = new EncryptedPayloadDto();
-        response.setRepositoryId(doc.getTeamRepository().getId());
+        response.setRepositoryId(doc.getTeam().getId());
         response.setContent(doc.getEncryptedContent()); // 암호화된 내용
 
         return ResponseEntity.ok(response);

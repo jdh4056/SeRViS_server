@@ -1,6 +1,7 @@
 package horizon.SeRVe.service;
 
 import horizon.SeRVe.entity.Document;
+import horizon.SeRVe.entity.Team;
 import horizon.SeRVe.repository.DocumentRepository;
 import horizon.SeRVe.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,7 @@ public class DocumentService {
     @Transactional
     public Long uploadDocument(Long repoId, String fileName, String encryptedContent, String ownerId) {
         // 1. 저장소 찾기
-        horizon.SeRVe.entity.TeamRepository repo = teamRepository.findById(repoId)
+        Team repo = teamRepository.findById(repoId)
                 .orElseThrow(() -> new IllegalArgumentException("저장소를 찾을 수 없습니다."));
 
         // 2. 문서 엔티티 생성 (암호화된 상태 그대로 저장)

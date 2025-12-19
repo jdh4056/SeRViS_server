@@ -1,5 +1,6 @@
 package horizon.SeRVe.service;
 
+import horizon.SeRVe.entity.Team;
 import horizon.SeRVe.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,8 +21,8 @@ public class RepoService {
         }
 
         // 2. 저장
-        horizon.SeRVe.entity.TeamRepository repo = new horizon.SeRVe.entity.TeamRepository(name, description, ownerId);
-        horizon.SeRVe.entity.TeamRepository saved = teamRepository.save(repo);
+        Team repo = new Team(name, description, ownerId);
+        Team saved = teamRepository.save(repo);
 
         return saved.getId();
     }

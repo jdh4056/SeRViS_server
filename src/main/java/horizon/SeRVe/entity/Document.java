@@ -19,7 +19,7 @@ public class Document {
     // 어느 저장소(금고)에 들어있는지
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "repository_id")
-    private TeamRepository teamRepository;
+    private Team team;
 
     private String originalFileName; // 원래 파일 이름 (예: design_v1.pdf)
 
@@ -31,8 +31,8 @@ public class Document {
 
     private LocalDateTime uploadedAt = LocalDateTime.now();
 
-    public Document(TeamRepository teamRepository, String originalFileName, String encryptedContent, String uploadedBy) {
-        this.teamRepository = teamRepository;
+    public Document(Team team, String originalFileName, String encryptedContent, String uploadedBy) {
+        this.team = team;
         this.originalFileName = originalFileName;
         this.encryptedContent = encryptedContent;
         this.uploadedBy = uploadedBy;

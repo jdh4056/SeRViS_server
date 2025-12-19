@@ -1,5 +1,6 @@
 package horizon.SeRVe.service;
 
+import horizon.SeRVe.entity.Team;
 import horizon.SeRVe.repository.TeamRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,11 +32,11 @@ class RepoServiceTest {
         String description = "Test Repo";
         String ownerId = "user1";
 
-        horizon.SeRVe.entity.TeamRepository mockRepo = new horizon.SeRVe.entity.TeamRepository(name, description, ownerId);
+        Team mockRepo = new Team(name, description, ownerId);
         mockRepo.setId(1L); // ID가 생성되었다고 가정
 
         given(teamRepository.findByName(name)).willReturn(Optional.empty()); // 중복 없음
-        given(teamRepository.save(any(horizon.SeRVe.entity.TeamRepository.class))).willReturn(mockRepo);
+        given(teamRepository.save(any(Team.class))).willReturn(mockRepo);
 
         // when
         Long repoId = repoService.createRepository(name, description, ownerId);
@@ -49,7 +50,7 @@ class RepoServiceTest {
     void createRepository_DuplicateName_Fail() {
         // given
         String name = "MyProject";
-        given(teamRepository.findByName(name)).willReturn(Optional.of(new horizon.SeRVe.entity.TeamRepository()));
+        given(teamRepository.findByName(name)).willReturn(Optional.of(new Team()));
 
         // when & then
         assertThrows(IllegalArgumentException.class, () -> {

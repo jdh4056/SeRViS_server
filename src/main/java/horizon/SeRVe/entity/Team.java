@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Table(name = "repositories") // 실제 테이블 이름
 @Getter @Setter
 @NoArgsConstructor
-public class TeamRepository {
+public class Team {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,7 +28,7 @@ public class TeamRepository {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     // 생성자 편의 메서드
-    public TeamRepository(String name, String description, String ownerId) {
+    public Team(String name, String description, String ownerId) {
         this.name = name;
         this.description = description;
         this.ownerId = ownerId;
