@@ -25,7 +25,7 @@ public class RepoController {
         private String encryptedTeamKey;
     }
 
-    //저장소 생성
+    // 저장소 생성
     @PostMapping
     public ResponseEntity<Long> createRepository(@RequestBody CreateRepoRequest request) {
         Long repoId = repoService.createRepository(
@@ -46,22 +46,22 @@ public class RepoController {
     }
 
     // 3. 팀 키 조회
-    @GetMapping("/{repoId}/keys")
+    @GetMapping("/{teamId}/keys")
     public ResponseEntity<String> getTeamKey(
-            @PathVariable Long repoId,
+            @PathVariable Long teamId, // 기존: repoId
             @RequestParam String userId) {
 
-        String encryptedTeamKey = repoService.getTeamKey(repoId, userId);
+        String encryptedTeamKey = repoService.getTeamKey(teamId, userId);
         return ResponseEntity.ok(encryptedTeamKey);
     }
 
     // 4. 저장소 삭제
-    @DeleteMapping("/{repoId}")
+    @DeleteMapping("/{teamId}")
     public ResponseEntity<Void> deleteRepository(
-            @PathVariable Long repoId,
+            @PathVariable Long teamId, // 기존: repoId
             @RequestParam String userId) {
 
-        repoService.deleteRepo(repoId, userId);
+        repoService.deleteRepo(teamId, userId);
         return ResponseEntity.ok().build();
     }
 }

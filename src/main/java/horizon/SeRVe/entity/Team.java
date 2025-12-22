@@ -7,11 +7,12 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+// 기존: TeamRepository → Team (JPA Repository 인터페이스와 혼동 방지)
 @Entity
-@Table(name = "repositories") // 실제 테이블 이름
+@Table(name = "teams") // 기존: repositories
 @Getter @Setter
 @NoArgsConstructor
-public class TeamRepository {
+public class Team {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,16 +33,16 @@ public class TeamRepository {
     private RepoType type = RepoType.TEAM;
 
     // 생성자 편의 메서드
-    public TeamRepository(String name, String description, String ownerId) {
+    public Team(String name, String description, String ownerId) {
         this.name = name;
         this.description = description;
         this.ownerId = ownerId;
     }
 
     @Column(unique = true)
-    private String repoId;
+    private String teamId; // 기존: repoId
 
-    public String getRepoId() {
-        return repoId;
+    public String getTeamId() { // 기존: getRepoId()
+        return teamId;
     }
 }

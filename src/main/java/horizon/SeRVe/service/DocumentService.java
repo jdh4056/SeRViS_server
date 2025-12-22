@@ -18,7 +18,7 @@ public class DocumentService {
 
     private final DocumentRepository documentRepository;
     private final EncryptedDataRepository encryptedDataRepository;
-    private final TeamRepoRepository teamRepoRepository;
+    private final TeamRepository teamRepository; // 기존: TeamRepoRepository
     private final UserRepository userRepository;
     private final MemberRepository memberRepository;
 
@@ -28,9 +28,10 @@ public class DocumentService {
      * - 로직 변경: 단일 저장 -> Document(메타) + EncryptedData(바이너리) 분리 저장
      */
     @Transactional
-    public void uploadDocument(String repoId, String userId, UploadDocumentRequest req) {
+    public void uploadDocument(String teamId, String userId, UploadDocumentRequest req) {
         // 1. 저장소 및 유저 조회
-        TeamRepository repo = teamRepoRepository.findByRepoId(repoId)
+        // 기존: findByRepoId → findByTeamId
+        Team team = teamRepository.findByTeamId(teamId)
                 .orElseThrow(() -> new IllegalArgumentException("저장소를 찾을 수 없습니다."));
 
         User uploader = userRepository.findById(userId)
@@ -39,7 +40,7 @@ public class DocumentService {
         // 2. 메타데이터(Document) 생성
         Document document = Document.builder()
                 .documentId(UUID.randomUUID().toString()) // UUID 생성
-                .teamRepository(repo)
+                .team(team) // 기존: teamRepository
                 .uploader(uploader)
                 .originalFileName(req.getFileName())
                 .fileType(req.getFileType())
@@ -62,11 +63,13 @@ public class DocumentService {
 
     // 문서 목록 조회
     @Transactional(readOnly = true)
-    public List<DocumentResponse> getDocuments(String repoId) {
-        TeamRepository repo = teamRepoRepository.findByRepoId(repoId)
+    public List<DocumentResponse> getDocuments(String teamId) {
+        // 기존: findByRepoId → findByTeamId
+        Team team = teamRepository.findByTeamId(teamId)
                 .orElseThrow(() -> new IllegalArgumentException("저장소를 찾을 수 없습니다."));
 
-        return documentRepository.findAllByTeamRepository(repo).stream()
+        // 기존: findAllByTeamRepository → findAllByTeam
+        return documentRepository.findAllByTeam(team).stream()
                 .map(DocumentResponse::from)
                 .collect(Collectors.toList());
     }
@@ -81,7 +84,9 @@ public class DocumentService {
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
         // 권한 체크
-        if (!memberRepository.existsByTeamRepositoryAndUser(document.getTeamRepository(), user)) {
+        // 기존: existsByTeamRepositoryAndUser → existsByTeamAndUser
+        // 기존: document.getTeamRepository() → document.getTeam()
+        if (!memberRepository.existsByTeamAndUser(document.getTeam(), user)) {
             throw new SecurityException("해당 저장소의 멤버만 문서를 다운로드할 수 있습니다.");
         }
 
@@ -102,7 +107,8 @@ public class DocumentService {
 
         boolean isUploader = document.getUploader().getUserId().equals(userId);
 
-        RepositoryMember memberInfo = memberRepository.findByTeamRepositoryAndUser(document.getTeamRepository(), requester)
+        // 기존: document.getTeamRepository() → document.getTeam()
+        RepositoryMember memberInfo = memberRepository.findByTeamAndUser(document.getTeam(), requester)
                 .orElseThrow(() -> new SecurityException("저장소 멤버가 아닙니다."));
 
         boolean isAdmin = memberInfo.getRole() == Role.ADMIN;

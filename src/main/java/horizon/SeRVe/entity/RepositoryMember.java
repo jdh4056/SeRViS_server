@@ -14,10 +14,10 @@ public class RepositoryMember {
     @EmbeddedId
     private RepositoryMemberId id;
 
-    @MapsId("repoId")
+    @MapsId("teamId") // 기존: repoId
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "repo_id")
-    private TeamRepository teamRepository;
+    @JoinColumn(name = "team_id") // 기존: repo_id
+    private Team team; // 기존: TeamRepository teamRepository
 
     @MapsId("userId")
     @ManyToOne(fetch = FetchType.LAZY)

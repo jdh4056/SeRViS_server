@@ -43,8 +43,20 @@ class ServiceTest {
     @BeforeEach
     void setUp() throws Exception {
         // 1. [사용자 생성] Owner와 Member를 가짜로 DB에 저장
-        owner = User.builder().userId("owner-uuid").email("owner@test.com").build();
-        member = User.builder().userId("member-uuid").email("member@test.com").build();
+        owner = User.builder()
+                .userId("owner-uuid")
+                .email("owner@test.com")
+                .hashedPassword("hashed")
+                .publicKey("ownerPubKey")
+                .encryptedPrivateKey("ownerEncPrivKey")
+                .build();
+        member = User.builder()
+                .userId("member-uuid")
+                .email("member@test.com")
+                .hashedPassword("hashed")
+                .publicKey("memberPubKey")
+                .encryptedPrivateKey("memberEncPrivKey")
+                .build();
         userRepository.save(owner);
         userRepository.save(member);
 
@@ -69,15 +81,15 @@ class ServiceTest {
         String encryptedKeyOwner = Base64.getEncoder().encodeToString(wrappedKeyForOwner);
 
         // RepoService 호출 (String 파라미터 4개 버전)
-        Long repoId = repoService.createRepository(
+        Long teamId = repoService.createRepository( // 기존: repoId
                 "Top Secret Project",
                 "Classified Documents",
                 owner.getUserId(),
                 encryptedKeyOwner
         );
 
-        assertNotNull(repoId);
-        System.out.println("   >> 저장소 생성 성공! ID: " + repoId);
+        assertNotNull(teamId);
+        System.out.println("   >> 저장소 생성 성공! ID: " + teamId);
 
 
         // --- Step 2: 멤버 초대 (Owner -> Member) ---
@@ -89,10 +101,10 @@ class ServiceTest {
 
         // MemberService 호출
         InviteMemberRequest inviteReq = new InviteMemberRequest(member.getEmail(), encryptedKeyMember);
-        memberService.inviteMember(repoId, inviteReq);
+        memberService.inviteMember(teamId, inviteReq); // 기존: repoId
 
         // 검증: 멤버가 잘 추가되었는지 확인
-        List<MemberResponse> members = memberService.getMembers(repoId);
+        List<MemberResponse> members = memberService.getMembers(teamId); // 기존: repoId
         assertEquals(2, members.size()); // Owner + Member
         System.out.println("   >> 멤버 초대 성공! 현재 멤버 수: " + members.size());
 
@@ -101,7 +113,7 @@ class ServiceTest {
         System.out.println("3. [Member] 서버에서 암호화된 키를 받아 복호화 시도");
 
         // MemberService를 통해 키 조회
-        String retrievedEncryptedKey = repoService.getTeamKey(repoId, member.getUserId());
+        String retrievedEncryptedKey = repoService.getTeamKey(teamId, member.getUserId()); // 기존: repoId
 
         // Member의 개인키로 복호화 (Unwrap)
         byte[] decodedBytes = Base64.getDecoder().decode(retrievedEncryptedKey);

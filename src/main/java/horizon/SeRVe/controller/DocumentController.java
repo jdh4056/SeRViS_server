@@ -20,24 +20,24 @@ public class DocumentController {
 
     /**
      * [Modified] 문서 업로드
-     * - URL: /api/repositories/{repoId}/documents (계획 준수)
+     * - URL: /api/teams/{teamId}/documents (기존: /api/repositories/{repoId}/documents)
      * - Body: UploadDocumentRequest (DTO 변경)
      */
-    @PostMapping("/api/repositories/{repoId}/documents")
+    @PostMapping("/api/teams/{teamId}/documents") // 기존: /api/repositories/{repoId}/documents
     public ResponseEntity<Void> uploadDocument(
-            @PathVariable String repoId,
+            @PathVariable String teamId, // 기존: repoId
             @AuthenticationPrincipal User user,
             @RequestBody UploadDocumentRequest request) {
 
         // 수정된 Service 메서드 호출
-        documentService.uploadDocument(repoId, user.getUserId(), request);
+        documentService.uploadDocument(teamId, user.getUserId(), request);
         return ResponseEntity.ok().build();
     }
 
     // 문서 목록 조회
-    @GetMapping("/api/repositories/{repoId}/documents")
-    public ResponseEntity<List<DocumentResponse>> getDocuments(@PathVariable String repoId) {
-        List<DocumentResponse> response = documentService.getDocuments(repoId);
+    @GetMapping("/api/teams/{teamId}/documents") // 기존: /api/repositories/{repoId}/documents
+    public ResponseEntity<List<DocumentResponse>> getDocuments(@PathVariable String teamId) { // 기존: repoId
+        List<DocumentResponse> response = documentService.getDocuments(teamId);
         return ResponseEntity.ok(response);
     }
 
@@ -52,9 +52,9 @@ public class DocumentController {
     }
 
     // 문서 삭제
-    @DeleteMapping("/api/repositories/{repoId}/documents/{docId}")
+    @DeleteMapping("/api/teams/{teamId}/documents/{docId}") // 기존: /api/repositories/{repoId}/documents/{docId}
     public ResponseEntity<Void> deleteDocument(
-            @PathVariable String repoId,
+            @PathVariable String teamId, // 기존: repoId
             @PathVariable String docId,
             @AuthenticationPrincipal User user) {
 

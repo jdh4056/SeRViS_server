@@ -31,7 +31,7 @@ class DocumentServiceTest {
     // 가짜(Mock) 저장소들 (실제 DB 대신 동작함)
     @Mock private DocumentRepository documentRepository;
     @Mock private EncryptedDataRepository encryptedDataRepository;
-    @Mock private TeamRepoRepository teamRepoRepository;
+    @Mock private TeamRepository teamRepository; // 기존: TeamRepoRepository
     @Mock private UserRepository userRepository;
     @Mock private MemberRepository memberRepository;
 
@@ -39,20 +39,21 @@ class DocumentServiceTest {
     @DisplayName("문서 업로드 성공 테스트")
     void uploadDocument_Success() {
         // given (준비)
-        String repoId = "repo-1";
+        String teamId = "team-1"; // 기존: repoId → teamId
         String userId = "user-1";
         String sampleBase64 = Base64.getEncoder().encodeToString("test-content".getBytes());
         UploadDocumentRequest request = new UploadDocumentRequest("test.pdf", "pdf", sampleBase64);
 
         // 가짜 객체 행동 정의 (Stubbing): "이런 ID로 찾으면 이런 객체를 줘라"
-        TeamRepository mockRepo = mock(TeamRepository.class);
+        Team mockTeam = mock(Team.class); // 기존: TeamRepository → Team
         User mockUser = mock(User.class);
 
-        given(teamRepoRepository.findByRepoId(repoId)).willReturn(Optional.of(mockRepo));
+        // 기존: findByRepoId → findByTeamId
+        given(teamRepository.findByTeamId(teamId)).willReturn(Optional.of(mockTeam));
         given(userRepository.findById(userId)).willReturn(Optional.of(mockUser));
 
         // when (실행)
-        documentService.uploadDocument(repoId, userId, request);
+        documentService.uploadDocument(teamId, userId, request);
 
         // then (검증)
         // documentRepository.save()가 딱 1번 호출되었는지 확인
@@ -63,8 +64,8 @@ class DocumentServiceTest {
     @DisplayName("문서 목록 조회 성공 테스트")
     void getDocuments_Success() {
         // given
-        String repoId = "repo-1";
-        TeamRepository mockRepo = mock(TeamRepository.class);
+        String teamId = "team-1"; // 기존: repoId
+        Team mockTeam = mock(Team.class); // 기존: TeamRepository
         User mockUploader = mock(User.class);
         given(mockUploader.getUserId()).willReturn("uploader-1"); // 업로더 ID 요청 시 반환값 설정
 
@@ -76,11 +77,13 @@ class DocumentServiceTest {
                 .uploader(mockUploader) // 가짜 업로더 주입
                 .build();
 
-        given(teamRepoRepository.findByRepoId(repoId)).willReturn(Optional.of(mockRepo));
-        given(documentRepository.findAllByTeamRepository(mockRepo)).willReturn(List.of(doc1));
+        // 기존: findByRepoId → findByTeamId
+        given(teamRepository.findByTeamId(teamId)).willReturn(Optional.of(mockTeam));
+        // 기존: findAllByTeamRepository → findAllByTeam
+        given(documentRepository.findAllByTeam(mockTeam)).willReturn(List.of(doc1));
 
         // when
-        List<DocumentResponse> result = documentService.getDocuments(repoId);
+        List<DocumentResponse> result = documentService.getDocuments(teamId);
 
         // then
         assertEquals(1, result.size());
@@ -106,7 +109,8 @@ class DocumentServiceTest {
         given(documentRepository.findByDocumentId(docId)).willReturn(Optional.of(mockDoc));
         given(userRepository.findById(userId)).willReturn(Optional.of(mockUser));
         // ★ 핵심: 멤버십 확인 결과가 'True'라고 가정
-        given(memberRepository.existsByTeamRepositoryAndUser(any(), any())).willReturn(true);
+        // 기존: existsByTeamRepositoryAndUser → existsByTeamAndUser
+        given(memberRepository.existsByTeamAndUser(any(), any())).willReturn(true);
         given(encryptedDataRepository.findByDocument(mockDoc)).willReturn(Optional.of(mockData));
 
         // when
@@ -131,7 +135,8 @@ class DocumentServiceTest {
         given(userRepository.findById(userId)).willReturn(Optional.of(mockUser));
 
         // ★ 핵심: 멤버십 확인 결과가 'False'라고 가정
-        given(memberRepository.existsByTeamRepositoryAndUser(any(), any())).willReturn(false);
+        // 기존: existsByTeamRepositoryAndUser → existsByTeamAndUser
+        given(memberRepository.existsByTeamAndUser(any(), any())).willReturn(false);
 
         // when & then (예외 발생 확인)
         assertThrows(SecurityException.class, () -> {

@@ -48,8 +48,20 @@ class SecurityIntegrationTest {
         String ownerId = UUID.randomUUID().toString();
         String memberId = UUID.randomUUID().toString();
 
-        owner = User.builder().userId(ownerId).email("owner@security.test").build();
-        member = User.builder().userId(memberId).email("member@security.test").build();
+        owner = User.builder()
+                .userId(ownerId)
+                .email("owner@security.test")
+                .hashedPassword("hashed")
+                .publicKey("ownerPubKey")
+                .encryptedPrivateKey("ownerEncPrivKey")
+                .build();
+        member = User.builder()
+                .userId(memberId)
+                .email("member@security.test")
+                .hashedPassword("hashed")
+                .publicKey("memberPubKey")
+                .encryptedPrivateKey("memberEncPrivKey")
+                .build();
 
         userRepository.save(owner);
         userRepository.save(member);
@@ -80,15 +92,15 @@ class SecurityIntegrationTest {
 
         // 1-3. RepoService.createRepository 호출
         // (Controller가 호출하는 방식 그대로 파라미터 전달: ownerId 포함)
-        Long repoId = repoService.createRepository(
+        Long teamId = repoService.createRepository( // 기존: repoId
                 "Secure Vault",
                 "Top Secret Logic Check",
                 owner.getUserId(),      // Controller에서 request.getOwnerId()로 넘기는 값
                 encryptedKeyString      // Controller에서 request.getEncryptedTeamKey()로 넘기는 값
         );
 
-        assertNotNull(repoId);
-        System.out.println(">>> 1. 저장소 생성 완료 (ID: " + repoId + ")");
+        assertNotNull(teamId);
+        System.out.println(">>> 1. 저장소 생성 완료 (ID: " + teamId + ")");
 
 
         // =================================================================
@@ -106,7 +118,7 @@ class SecurityIntegrationTest {
         InviteMemberRequest inviteReq = new InviteMemberRequest(member.getEmail(), encryptedKeyForMemberStr);
 
         // MemberService 호출
-        memberService.inviteMember(repoId, inviteReq);
+        memberService.inviteMember(teamId, inviteReq); // 기존: repoId
 
         System.out.println(">>> 2. 멤버 초대 완료 (키 공유 성공)");
 
@@ -116,7 +128,7 @@ class SecurityIntegrationTest {
         // =================================================================
 
         // 3-1. 서버에서 암호화된 팀 키 조회 (RepoService.getTeamKey)
-        String retrievedEncryptedKey = repoService.getTeamKey(repoId, member.getUserId());
+        String retrievedEncryptedKey = repoService.getTeamKey(teamId, member.getUserId()); // 기존: repoId
         assertNotNull(retrievedEncryptedKey);
 
         // 3-2. Member의 개인키로 복호화 (Unwrap)

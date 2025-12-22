@@ -20,8 +20,8 @@ public class Document {
     private String documentId; // 외부 식별용 UUID
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "repository_id")
-    private TeamRepository teamRepository;
+    @JoinColumn(name = "team_id") // 기존: repository_id
+    private Team team; // 기존: TeamRepository teamRepository
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "uploader_id")

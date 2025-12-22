@@ -6,7 +6,7 @@ import horizon.SeRVe.dto.repo.CreateRepoRequest;
 import horizon.SeRVe.entity.RepositoryMember;
 import horizon.SeRVe.entity.RepositoryMemberId;
 import horizon.SeRVe.entity.Role;
-import horizon.SeRVe.entity.TeamRepository;
+import horizon.SeRVe.entity.Team;
 import horizon.SeRVe.entity.User;
 import horizon.SeRVe.security.crypto.CryptoManager;
 import horizon.SeRVe.security.crypto.KeyExchangeService;
@@ -54,8 +54,14 @@ class DtoEntitySecurityTest {
 
         // 3. [Entity 검증] DTO -> Entity 데이터 이관 시뮬레이션
         // 실제 Service 코드가 없으므로, 여기서 수동으로 매핑하여 구조적 적합성 확인
-        User owner = User.builder().userId("owner-id").email("owner@test.com").build();
-        TeamRepository repo = new TeamRepository("Test Repo", "Desc", owner.getUserId());
+        User owner = User.builder()
+                .userId("owner-id")
+                .email("owner@test.com")
+                .hashedPassword("hashed")
+                .publicKey("pubKey")
+                .encryptedPrivateKey("encPrivKey")
+                .build();
+        Team team = new Team("Test Repo", "Desc", owner.getUserId()); // 기존: TeamRepository
 
         // 복합키 생성
         RepositoryMemberId memberId = new RepositoryMemberId(1L, owner.getUserId());
@@ -63,7 +69,7 @@ class DtoEntitySecurityTest {
         // Entity 생성 (빌더 패턴 활용)
         RepositoryMember memberEntity = RepositoryMember.builder()
                 .id(memberId)
-                .teamRepository(repo)
+                .team(team) // 기존: teamRepository
                 .user(owner)
                 .role(Role.ADMIN)
                 .encryptedTeamKey(createReq.getEncryptedTeamKey()) // DTO에서 꺼내서 넣음
