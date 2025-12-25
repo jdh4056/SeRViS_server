@@ -22,6 +22,7 @@ public class ChunkService {
     private final TeamRepository teamRepository;
     private final UserRepository userRepository;
     private final MemberRepository memberRepository;
+    private final RateLimitService rateLimitService;
 
     /**
      * A. 청크 업로드 (배치)
@@ -38,12 +39,16 @@ public class ChunkService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        // 2. ADMIN 권한 체크 (ADMIN 전용)
+        // 1-1. Rate Limit 체크 (악의적인 대량 업로드 방지)
+        rateLimitService.checkAndRecordUpload(userId);
+
+        // 2. 멤버십 및 권한 체크 (Federated Model: MEMBER 전용, ADMIN은 Key Master 역할만)
         RepositoryMember member = memberRepository.findByTeamAndUser(team, user)
                 .orElseThrow(() -> new SecurityException("저장소 멤버가 아닙니다."));
 
-        if (member.getRole() != Role.ADMIN) {
-            throw new SecurityException("청크 업로드는 ADMIN 권한이 필요합니다.");
+        // ADMIN은 업로드 금지 (Key Master 역할만 수행)
+        if (member.getRole() == Role.ADMIN) {
+            throw new SecurityException("ADMIN은 데이터 업로드가 불가능합니다. MEMBER만 업로드할 수 있습니다.");
         }
 
         // 3. Document 찾거나 생성
@@ -85,39 +90,6 @@ public class ChunkService {
                 vectorChunkRepository.save(newChunk);
             }
         }
-    }
-
-    /**
-     * B. 청크 다운로드
-     * - ADMIN 또는 MEMBER 권한 허용
-     * - fileName으로 Document 조회
-     * - is_deleted = false인 청크만 반환
-     */
-    @Transactional(readOnly = true)
-    public List<ChunkResponse> getChunks(String teamId, String fileName, String userId) {
-        // 1. Team 조회
-        Team team = teamRepository.findByTeamId(teamId)
-                .orElseThrow(() -> new IllegalArgumentException("팀을 찾을 수 없습니다."));
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-
-        // 2. 멤버십 체크 (ADMIN 또는 MEMBER)
-        if (!memberRepository.existsByTeamAndUser(team, user)) {
-            throw new SecurityException("팀 멤버가 아닙니다.");
-        }
-
-        // 3. Document 조회
-        Document document = documentRepository.findByTeamAndOriginalFileName(team, fileName)
-                .orElseThrow(() -> new IllegalArgumentException("문서를 찾을 수 없습니다."));
-
-        // 4. 삭제되지 않은 청크만 조회 (chunk_index 순 정렬)
-        List<VectorChunk> chunks = vectorChunkRepository
-                .findByDocumentIdAndIsDeletedOrderByChunkIndexAsc(document.getDocumentId(), false);
-
-        return chunks.stream()
-                .map(ChunkResponse::from)
-                .collect(Collectors.toList());
     }
 
     /**

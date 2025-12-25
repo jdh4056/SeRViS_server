@@ -1,6 +1,7 @@
 package horizon.SeRVe.controller;
 
 import horizon.SeRVe.dto.member.InviteMemberRequest;
+import horizon.SeRVe.dto.member.MemberKickResponse;
 import horizon.SeRVe.dto.member.MemberResponse;
 import horizon.SeRVe.dto.member.UpdateRoleRequest;
 import horizon.SeRVe.dto.member.UpdateTeamKeysRequest;
@@ -43,13 +44,13 @@ public class MemberController {
 
     // 3. 멤버 강퇴 (ADMIN 권한 필요)
     @DeleteMapping("/{targetUserId}")
-    public ResponseEntity<Void> kickMember(
+    public ResponseEntity<MemberKickResponse> kickMember(
             @PathVariable String teamId, // 기존: repoId
             @PathVariable String targetUserId,
             @AuthenticationPrincipal User admin) {
 
-        memberService.kickMember(teamId, targetUserId, admin.getUserId());
-        return ResponseEntity.ok().build();
+        MemberKickResponse response = memberService.kickMember(teamId, targetUserId, admin.getUserId());
+        return ResponseEntity.ok(response);
     }
 
     // 4. 권한 변경 (ADMIN 권한 필요)

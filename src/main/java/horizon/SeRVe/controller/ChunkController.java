@@ -34,20 +34,6 @@ public class ChunkController {
     }
 
     /**
-     * B. 청크 다운로드
-     * GET /api/teams/{teamId}/chunks?fileName=설비매뉴얼.pdf
-     */
-    @GetMapping("/api/teams/{teamId}/chunks")
-    public ResponseEntity<List<ChunkResponse>> getChunks(
-            @PathVariable String teamId,
-            @RequestParam String fileName,
-            @AuthenticationPrincipal User user) {
-
-        List<ChunkResponse> response = chunkService.getChunks(teamId, fileName, user.getUserId());
-        return ResponseEntity.ok(response);
-    }
-
-    /**
      * C. 청크 삭제 (논리적 삭제)
      * DELETE /api/teams/{teamId}/chunks/{chunkIndex}?fileName=설비매뉴얼.pdf
      */

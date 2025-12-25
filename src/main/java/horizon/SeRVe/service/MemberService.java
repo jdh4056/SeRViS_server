@@ -1,6 +1,7 @@
 package horizon.SeRVe.service;
 
 import horizon.SeRVe.dto.member.InviteMemberRequest;
+import horizon.SeRVe.dto.member.MemberKickResponse;
 import horizon.SeRVe.dto.member.MemberResponse;
 import horizon.SeRVe.dto.member.UpdateRoleRequest;
 import horizon.SeRVe.dto.member.UpdateTeamKeysRequest;
@@ -85,7 +86,7 @@ public class MemberService {
 
     // 3. 멤버 강퇴
     @Transactional
-    public void kickMember(String teamId, String targetUserId, String adminUserId) {
+    public MemberKickResponse kickMember(String teamId, String targetUserId, String adminUserId) {
         // [New] 강퇴 대상이 저장소 소유자(Owner)인지 확인하는 로직 추가
         // 실수로 관리자가 소유자를 강퇴하여 저장소가 고아 상태가 되는 것을 방지
         Team team = teamRepository.findByTeamId(teamId)
@@ -97,13 +98,14 @@ public class MemberService {
         RepositoryMember targetMember = validateAdminAndGetTarget(teamId, targetUserId, adminUserId);
         memberRepository.delete(targetMember);
 
-        // TODO: 키 로테이션 권장
-        // 강퇴된 멤버는 이미 팀 키를 알고 있으므로, 보안을 위해 팀 키를 로테이션해야 합니다.
-        // 클라이언트에서 다음 단계를 수행해야 합니다:
+        // [보안] 멤버 퇴출 시 Key Rotation 필수 알림
+        // 퇴출된 멤버는 여전히 팀 키를 보유하고 있으므로, 즉시 팀 키를 갱신해야 합니다.
+        // 클라이언트(Admin)는 다음 단계를 수행해야 합니다:
         // 1. 새로운 팀 키 생성
         // 2. 남은 멤버들의 공개키로 새 팀 키 래핑
         // 3. POST /teams/{teamId}/members/rotate-keys API 호출하여 키 업데이트
         // 4. (선택적) 기존 문서를 새 팀 키로 재암호화
+        return MemberKickResponse.createSuccess();
     }
 
     // 4. 권한 변경
