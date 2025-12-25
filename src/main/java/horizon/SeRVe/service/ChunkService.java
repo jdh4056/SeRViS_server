@@ -38,7 +38,7 @@ public class ChunkService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        // 2. ADMIN 권한 체크
+        // 2. ADMIN 권한 체크 (ADMIN 전용)
         RepositoryMember member = memberRepository.findByTeamAndUser(team, user)
                 .orElseThrow(() -> new SecurityException("저장소 멤버가 아닙니다."));
 
