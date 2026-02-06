@@ -1,0 +1,29 @@
+plugins {
+    id 'java-library'
+}
+
+// 라이브러리 모듈: bootJar 생성하지 않음
+jar {
+    enabled = true
+}
+
+dependencies {
+    // Spring Web (RestControllerAdvice, RequestMapping 등)
+    api 'org.springframework.boot:spring-boot-starter-web'
+
+    // Spring Security (SecurityFilterChain 등)
+    api 'org.springframework.boot:spring-boot-starter-security'
+
+    // Validation
+    api 'org.springframework.boot:spring-boot-starter-validation'
+
+    // JWT
+    api 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+    // Google Tink (암호화)
+    api 'com.google.crypto.tink:tink:1.15.0'
+    api 'com.google.protobuf:protobuf-java:3.25.5'
+    api 'com.google.guava:guava:33.3.1-android'
+}

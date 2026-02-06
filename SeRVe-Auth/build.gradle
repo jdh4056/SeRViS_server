@@ -1,0 +1,28 @@
+plugins {
+    id 'org.springframework.boot' version '3.4.0'
+}
+
+ext {
+    set('springCloudVersion', '2024.0.0')
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+dependencies {
+    implementation project(':SeRVe-Common')
+
+    // JPA + DB
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+    runtimeOnly 'com.h2database:h2'
+
+    // OpenFeign (Team 서비스 호출용)
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+    // Security 테스트
+    testImplementation 'org.springframework.security:spring-security-test'
+}
