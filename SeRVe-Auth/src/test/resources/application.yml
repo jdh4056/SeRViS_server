@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:serve_auth_test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+
+jwt:
+  secret: TestSecretKeyForHorizonServeProject2025MustBeLongEnoughToWork
+  expiration: 86400000
+
+service:
+  team:
+    url: http://localhost:8082
