@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/repositories")
@@ -19,7 +20,7 @@ public class RepoController {
 
     // 저장소 생성 (ownerId는 JWT에서 추출)
     @PostMapping
-    public ResponseEntity<String> createRepository(
+    public ResponseEntity<Map<String, String>> createRepository(
             Authentication authentication,
             @RequestBody CreateRepoRequest request) {
         String userId = (String) authentication.getPrincipal();
@@ -29,7 +30,7 @@ public class RepoController {
                 userId,
                 request.getEncryptedTeamKey()
         );
-        return ResponseEntity.ok(repoId);
+        return ResponseEntity.ok(Map.of("id", repoId));
     }
 
     // 내 저장소 목록 조회
